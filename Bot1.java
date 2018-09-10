@@ -31,7 +31,6 @@ public class Bot1 {
     private final static String TIDEX_URL = "https://api.tidex.com/tapi";
     private static final String TIDEX_TICKER = "https://api.tidex.com/api/3/ticker/";
     private static final String TIDEX_DEPTH = "https://api.tidex.com/api/3/depth/";
-
     private static Map<String, Double> amounts = new HashMap<>();
 
     public boolean isAPIKeysValid(String publicKey, String privateKey) throws InvalidApiException {
