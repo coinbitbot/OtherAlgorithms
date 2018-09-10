@@ -51,12 +51,6 @@ public class Bot2 {
         }
     }
 
-    // NO
-    @Override
-    public double getBTCAmount(String publicKey, String privateKey) {
-        return 0;
-    }
-
     @Override
     public Object placeBuyOrder(String publicKey, String privateKey, String pair, double amount, double price) throws InvalidApiException, SymbolNotExistsException {
         String answer = "";
@@ -179,25 +173,12 @@ public class Bot2 {
 
     }
 
-    private double getAmountById(String order_id) {
-        double amount = 0;
-        if (amounts.containsKey(order_id)) {
-            amount = amounts.get(order_id);
-            amounts.remove(order_id);
-        }
-        return amount;
-    }
-
-
-
-
     @Override
     public double getAmountByCurrency(String publicKey, String privateKey, String pair, boolean currency) throws InterruptedException, SymbolNotExistsException {
 
         String seachedCurrency = getCurrency(pair, currency);
         String balance = getBalance(publicKey, privateKey);
         JSONObject jsonObject = new JSONObject(balance);
-        //System.out.println(jsonObject);
         JSONArray array = jsonObject.getJSONArray("balance");
         for (int i = 0; i < array.length(); i++) {
             JSONObject obj = array.getJSONObject(i);
@@ -233,8 +214,6 @@ public class Bot2 {
         return orders;
     }
 
-
-
     @Override
     public Ticker getTicker(String symbol) throws SymbolNotExistsException {
         String answerStr = "";
@@ -250,7 +229,6 @@ public class Bot2 {
         }
     }
 
-
     @Override
     public BigDecimal getDaysVolume(String pair) throws SymbolNotExistsException {
         String answer = null;
@@ -265,113 +243,4 @@ public class Bot2 {
             throw new SymbolNotExistsException();
         }
     }
-
-    private String getBalance(String publicKey, String privateKey) {
-
-        String answer = null;
-        try {
-            Date now = new Date();
-
-            BasicNameValuePair apiid = new BasicNameValuePair("apiid", publicKey);
-            BasicNameValuePair secret = new BasicNameValuePair("secret", privateKey);
-            BasicNameValuePair timestamp = new BasicNameValuePair("timestamp", String.valueOf(now.getTime()));
-            BasicNameValuePair acc = new BasicNameValuePair("account", "exchange");
-
-            String singStr = generateSign(apiid, secret, timestamp, acc);
-            List<NameValuePair> params = new ArrayList<>();
-            params.add(apiid);
-            params.add(timestamp);
-            params.add(new BasicNameValuePair("sign", singStr));
-            params.add(acc);
-            System.out.println(generateJSON(params));
-            answer = makePrivateRequest(GET_BALANCE, params);
-        } catch (Exception e) {
-            Logger.logException("While get balance" + answer, e, false);
-        }
-        return answer;
-    }
-
-    private String getCurrency(String pair, boolean currency) {
-        if (currency) return pair.substring(0, pair.indexOf('-'));
-        else return pair.substring(pair.indexOf('-') + 1);
-    }
-
-    private List<NameValuePair> createParamsForTrade(String apiid, String privateKey, boolean buy, String symbol, double quantity, double price) {
-        DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
-        otherSymbols.setGroupingSeparator('.');
-        DecimalFormat formatPrice = new DecimalFormat("####.########", otherSymbols);
-        DecimalFormat formatAmount = new DecimalFormat("####.##", otherSymbols);
-
-        BasicNameValuePair apiidVP = new BasicNameValuePair("apiid", apiid);
-        BasicNameValuePair priceVP = new BasicNameValuePair("price", formatPrice.format(price));
-
-        BasicNameValuePair quantityVP = new BasicNameValuePair("quantity", formatAmount.format(quantity));
-        BasicNameValuePair symbolVP = new BasicNameValuePair("symbol", encodePair(symbol));
-        BasicNameValuePair typeVP = new BasicNameValuePair("type", buy ? "buy-limit" : "sell-limit");
-        BasicNameValuePair timestampVP = new BasicNameValuePair("timestamp", String.valueOf((long) Math.floor(System.currentTimeMillis())));
-        BasicNameValuePair secretVP = new BasicNameValuePair("secret", privateKey);
-        BasicNameValuePair signVP = new BasicNameValuePair("sign", generateSign(apiidVP, priceVP, quantityVP, symbolVP, typeVP, timestampVP, secretVP));
-        if (buy) VolumeService.addVolume(Stocks.Coinbene, symbol, Double.parseDouble(formatAmount.format(quantity)));
-        return new ArrayList<>(Arrays.asList(apiidVP, priceVP, quantityVP, symbolVP, typeVP, timestampVP, signVP));
-    }
-
-    private List<NameValuePair> createParamsForOpenOrders(String apiid, String privateKey, String symbol) {
-        BasicNameValuePair apiidVP = new BasicNameValuePair("apiid", apiid);
-        BasicNameValuePair timestampVP = new BasicNameValuePair("timestamp", String.valueOf((long) Math.floor(System.currentTimeMillis())));
-        BasicNameValuePair secretVP = new BasicNameValuePair("secret", privateKey);
-        BasicNameValuePair symbolVP = new BasicNameValuePair("symbol", encodePair(symbol));
-        BasicNameValuePair signVP = new BasicNameValuePair("sign", generateSign(apiidVP, secretVP, symbolVP, timestampVP));
-
-        return new ArrayList<>(Arrays.asList(apiidVP, timestampVP, signVP, symbolVP));
-    }
-
-    private List<NameValuePair> createParamsBalance(String apiid, String privateKey, String account) {
-        BasicNameValuePair accountVP = new BasicNameValuePair("account", account);
-        BasicNameValuePair apiidVP = new BasicNameValuePair("apiid", apiid);
-        BasicNameValuePair timestampVP = new BasicNameValuePair("timestamp", String.valueOf((long) Math.floor(System.currentTimeMillis())));
-        BasicNameValuePair secretVP = new BasicNameValuePair("secret", privateKey);
-        BasicNameValuePair signVP = new BasicNameValuePair("sign", generateSign(accountVP, apiidVP, timestampVP, secretVP));
-        return new ArrayList<>(Arrays.asList(accountVP, apiidVP, timestampVP, signVP));
-    }
-
-
-    private String generateSign(BasicNameValuePair... params) {
-        List<String> paramList = Arrays.stream(params).map(e -> e.getName().toUpperCase() + "=" + e.getValue().toUpperCase()).collect(Collectors.toList());
-
-        Collections.sort(paramList);
-        String paramUrl = paramList.stream().map(Object::toString).collect(Collectors.joining("&"));
-        String sign = DigestUtils.md5Hex(paramUrl);
-
-        return sign;
-    }
-
-    private String generateJSON(List<NameValuePair> params) {
-        JSONObject result = null;
-        try {
-            result = new JSONObject();
-            for (NameValuePair o : params) {
-                result.put(o.getName(), o.getValue());
-            }
-        } catch (Exception e) {
-            Logger.logException("While generating json from list  got exception...", e, false);
-        }
-        return result.toString();
-    }
-
-    private String makePrivateRequest(String url, List<NameValuePair> params) {
-        try {
-            List<NameValuePair> httpHeaders = new ArrayList<>();
-            httpHeaders.add(new BasicNameValuePair("Content-Type", "application/json"));
-            return RequestsHelper.postHttp(url, generateJSON(params), httpHeaders);
-        } catch (Exception e) {
-            Logger.logException("While sending private request", e, true);
-        }
-        return null;
-
-    }
-
-    private String encodePair(String pair) {
-        return pair.substring(0, pair.indexOf('-')) + pair.substring(pair.indexOf('-') + 1);
-    }
-
 }
