@@ -173,6 +173,31 @@ public class Bot2 {
 
     }
 
+        @Override
+    public Object placeSellOrder(String adress, String privateKey, String pair, double amount, double price) throws InvalidApiException, SymbolNotExistsException, InterruptedException {
+        String answerStr = "";
+        try {
+            DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.ENGLISH);
+            otherSymbols.setGroupingSeparator('.');
+            DecimalFormat format = new DecimalFormat("##.########", otherSymbols);
+
+            List<NameValuePair> params = new ArrayList<>();
+            params.add(new BasicNameValuePair("blockchainType", "ethereum"));
+            params.add(new BasicNameValuePair("fromCurrencyId",currencyIds.get(getCounter(pair))));
+            params.add(new BasicNameValuePair("toCurrencyId",currencyIds.get(getBase(pair)) ));
+            params.add(new BasicNameValuePair("amount", format.format(amount)));
+            params.add(new BasicNameValuePair("minimumReturn", format.format(new BigDecimal(amount).multiply(new BigDecimal(price)).multiply(new BigDecimal(0.98)))));
+            params.add(new BasicNameValuePair("ownerAddress", adress));
+            System.out.println(params);
+            answerStr = RequestsHelper.postHttp(order_url,params,null);
+            System.out.println(answerStr);
+            return null;
+        } catch (Exception e) {
+            Logger.logException("Exception while placing  sell order. Received responce = " + answerStr, e, false);
+            Thread.sleep(Resources.DELAY);
+            return placeBuyOrder(adress, privateKey, pair, amount, price);
+        }
+    }
     @Override
     public double getAmountByCurrency(String publicKey, String privateKey, String pair, boolean currency) throws InterruptedException, SymbolNotExistsException {
 
