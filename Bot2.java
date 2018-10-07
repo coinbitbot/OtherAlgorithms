@@ -49,8 +49,34 @@ public class Bot2 {
             Logger.logException("While checking API keys got answer " + answer, e, true);
             throw new InvalidApiException("While checking API keys got bad answer");
         }
-    }
+    }    
+    
+    public static String postHttp_auth(String url, String publicKey, String privateKey, List<NameValuePair> params) throws NullPointerException {
+        try {
+            HttpPost post = new HttpPost(url);
+            post.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 
+            String auth = publicKey + ":" + privateKey;
+            byte[] encodedAuth = Base64.getEncoder().encode(
+                    // .encodeBase64(
+                    auth.getBytes(StandardCharsets.ISO_8859_1));
+            String authHeader = "Basic " + new String(encodedAuth);
+            post.addHeader(HttpHeaders.AUTHORIZATION, authHeader);
+
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            HttpResponse response = httpClient.execute(post);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                return EntityUtils.toString(entity);
+
+            }
+
+        } catch (Exception e) {
+            Logger.logException("Making url_encoded post request to url " + url, e, true);
+        }
+        return null;
+    }
+    
     @Override
     public Object placeBuyOrder(String publicKey, String privateKey, String pair, double amount, double price) throws InvalidApiException, SymbolNotExistsException {
         String answer = "";
