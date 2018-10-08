@@ -47,6 +47,23 @@ public class Bot1 {
             return false;
         }
     }
+    
+    
+    private double overrideLastPrice(double current, double heavyBuy, double lightSell) {
+        System.out.println("left: " + heavyBuy);
+        System.out.println("rig: " + lightSell);
+        double part = current * 0.002;
+        if (current <= heavyBuy) {
+            current = heavyBuy;
+            return (current + part);
+        }
+
+        if (current >= lightSell) {
+            current = lightSell;
+            return (current - part);
+        }
+        return current;
+    }
 
     public double getBTCAmount(String publicKey, String privateKey) {
         return 0;
