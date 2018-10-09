@@ -23,6 +23,12 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.stream.Collectors;
+ 
+
+ @Override
+    public Object placeSellOrder(String publicKey, String privateKey, String pair, double amount, double price) throws InvalidApiException, SymbolNotExistsException, InterruptedException {
+        return createOrder(publicKey, privateKey, pair, amount, price, false);
+    }
 
 
 public class Bot2 {
