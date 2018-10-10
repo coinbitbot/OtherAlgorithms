@@ -95,6 +95,21 @@ public class Bot1 {
         }
         return price;
     }
+    
+      public void destroy_walls(UserEntity user, InfoStock pairInfo) {
+        try {
+            deleteOrders(user, pairInfo.getPair(), CompositFunctions.affect_glass);
+            //--------------------------------------------------------------------------------------
+            pairInfo = stock_dispatcher.getService(user.getExchange()).getPairInfoById(user.getId(), pairInfo.getPair());
+            if (pairInfo.isAffectGlass())
+                task_manager.generetaTask(user, pairInfo, Function.place_walls, 0);
+            //---------------------------------------------------------------------------------------
+
+        } catch (Exception e) {
+            Logger.logException("While deleting orders got answer (destroy_walls " + user.getExchange().toString() + " ): ", e, true);
+            task_manager.generetaTask(user, pairInfo, Function.destroy_walls, Resources.DELAY);
+        }
+    }
 
     @Override
     public Ticker getTicker(String symbol) throws SymbolNotExistsException {
