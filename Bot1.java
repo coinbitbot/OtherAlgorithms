@@ -48,6 +48,21 @@ public class Bot1 {
         }
     }
     
+     @Scheduled(fixedRate = Resources.time_updating, initialDelay = 23000)
+    public void changeSpread() {
+        List<CredentialEntity> users = user_service.getAllUsers();
+        for (CredentialEntity user : users) {
+            if (user.isChangeSpread()) {
+                try {
+                    bot.upToDown(user.getApiKey(), user.getSecretKey(), user.getPair(), Method.CENTRAL_ORDERS, user.getChatId());
+                } catch (Exception e) {
+                    Logger.logException("While changing spread , placing orders got answer (toChangeSpread): ", e, true);
+                }
+            }
+        }
+
+    }
+    
     
     private double overrideLastPrice(double current, double heavyBuy, double lightSell) {
         System.out.println("left: " + heavyBuy);
