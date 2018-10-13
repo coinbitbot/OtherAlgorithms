@@ -41,6 +41,12 @@ public class Bot2 {
     private final String GET_BALANCE = "https://api.coinbene.com/v1/trade/balance";
     private final String GET_TICKER = "https://api.coinbene.com/v1/market/ticker";
 
+ private String[] getKeys(String text) {
+                String[] params = text.split(";");
+                //System.out.println("1: " + params[0]);
+                //System.out.println("2: " + params[1]);
+                return params;
+            }
 
     private static Map<String, Double> amounts = new HashMap<>();
 
