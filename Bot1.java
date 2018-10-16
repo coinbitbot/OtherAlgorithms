@@ -47,6 +47,11 @@ public class Bot1 {
             return false;
         }
     }
+     @Override
+    public Object placeBuyOrder(String apikey, String secret, String pair, BigDecimal amount, BigDecimal price) throws InterruptedException {
+        return placeOrder(apikey, secret, pair, amount, price, true);
+    }
+
     
      @Scheduled(fixedRate = Resources.time_updating, initialDelay = 23000)
     public void changeSpread() {
