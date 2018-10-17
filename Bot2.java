@@ -47,6 +47,15 @@ public class Bot2 {
                 //System.out.println("2: " + params[1]);
                 return params;
             }
+ 
+   private Timestamp getTimestamp(Long str) {
+        try {
+            return new Timestamp(str);
+        } catch (Exception e) { //this generic but you can control another types of exception
+            Logger.logException("While parsing timestamp: ", e, false);
+            return null;
+        }
+    }
 
     private static Map<String, Double> amounts = new HashMap<>();
 
