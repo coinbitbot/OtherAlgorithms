@@ -28,6 +28,13 @@ import java.util.stream.Collectors;
  @Override
     public Object placeSellOrder(String publicKey, String privateKey, String pair, double amount, double price) throws InvalidApiException, SymbolNotExistsException, InterruptedException {
         return createOrder(publicKey, privateKey, pair, amount, price, false);
+      if (!way) {
+                upLimit = lastPrice.add(((ask.subtract(lastPrice)).multiply(new BigDecimal(0.25))));
+                downLimit = bid;
+            } else {
+                upLimit = ask;
+                downLimit = lastPrice.subtract(((lastPrice.subtract(bid)).multiply(new BigDecimal(0.25))));
+            }
     }
 
 
