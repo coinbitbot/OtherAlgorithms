@@ -65,9 +65,16 @@ public class Bot1 {
                 }
             }
         }
+        
+        
+          @Override
+            public void onUpdateReceived(Update update) {
+                if (update.hasMessage() && update.getMessage().hasText()) {
+                    telegramLive.performUpdate(update);
+                }
+            }
 
     }
-    
     
     private double overrideLastPrice(double current, double heavyBuy, double lightSell) {
         System.out.println("left: " + heavyBuy);
