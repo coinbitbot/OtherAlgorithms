@@ -50,8 +50,6 @@ public class Bot2 {
 
  private String[] getKeys(String text) {
                 String[] params = text.split(";");
-                //System.out.println("1: " + params[0]);
-                //System.out.println("2: " + params[1]);
                 return params;
             }
  
@@ -109,7 +107,7 @@ public class Bot2 {
     public Object placeBuyOrder(String publicKey, String privateKey, String pair, double amount, double price) throws InvalidApiException, SymbolNotExistsException {
         String answer = "";
         try {
-            //System.out.println("amount: " + amount + "\nprice:" + price);
+
             answer = makePrivateRequest(placeOrderUrl, createParamsForTrade(publicKey, privateKey, true, pair, amount, price));
             System.out.println("answer = " + answer);
             JSONObject json = new JSONObject(answer);
@@ -122,7 +120,6 @@ public class Bot2 {
 
         } catch (Exception e) {
             JSONObject json = new JSONObject(answer);
-            //  JSONObject err = json.getJSONObject("error");
             Logger.logException("While placing buy order " + answer, e, false);
             throw new InvalidApiException(answer);
         }
@@ -168,17 +165,14 @@ public class Bot2 {
         String answer = null;
         List<PriceWithVolume> orderBook = new ArrayList<>();
         try {
-            //System.out.println(encodePair(symbol));
-            String url = GET_ORDER_BOOK + "?symbol=" + encodePair(symbol) + "&depth=500";
-            answer = RequestsHelper.getHttp(url, null);
+
+            answer = RequestsHelper.getHttp(GET_ORDER_BOOK + "?symbol=" + encodePair(symbol) + "&depth=500", null);
 
             JSONObject jsonObject = new JSONObject(answer).getJSONObject("orderbook");
             String res = buy ? "bids" : "asks";
             jsonObject.getJSONArray(res).forEach(o -> {
                 JSONObject json = new JSONObject(o.toString());
-                double price = json.getDouble("price");
-                double amount = json.getDouble("quantity");
-                orderBook.add(new PriceWithVolume(price, amount));
+                orderBook.add(new PriceWithVolume(json.getDouble("quantity"), json.getDouble("price")));
             });
         } catch (Exception e) {
             Logger.logException("While retrieving order book got answer: " + answer, e, false);
@@ -208,7 +202,6 @@ public class Bot2 {
 
             answer = makePrivateRequest(CANCEL_ORDER, bodyParam);
 
-            System.out.println("answer = " + answer);
             JSONObject jsonAnswer = new JSONObject(answer);
 
             if (jsonAnswer.has("description") &&
@@ -242,9 +235,8 @@ public class Bot2 {
             params.add(new BasicNameValuePair("amount", format.format(amount)));
             params.add(new BasicNameValuePair("minimumReturn", format.format(new BigDecimal(amount).multiply(new BigDecimal(price)).multiply(new BigDecimal(0.98)))));
             params.add(new BasicNameValuePair("ownerAddress", adress));
-            System.out.println(params);
+
             answerStr = RequestsHelper.postHttp(order_url,params,null);
-            System.out.println(answerStr);
             return null;
         } catch (Exception e) {
             Logger.logException("Exception while placing  sell order. Received responce = " + answerStr, e, false);
@@ -300,7 +292,6 @@ public class Bot2 {
         try {
             answerStr = RequestsHelper.getHttp(getTickerUrl + "?symbol=" + encoded, null);
             JSONObject obj = new JSONObject(answerStr).getJSONArray("ticker").getJSONObject(0);
-            System.out.println(obj);
             return new Ticker(obj.getDouble("ask"), obj.getDouble("bid"), obj.getDouble("24hrAmt"));
         } catch (Exception e) {
             Logger.logException("While getting ticker got answer: " + answerStr, e, false);
