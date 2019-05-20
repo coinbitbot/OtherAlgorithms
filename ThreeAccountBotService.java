@@ -1,6 +1,11 @@
 package coinbot.modules.bots.services;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 public class ThreeAccountBotServce{
 
     @Override
@@ -44,5 +49,19 @@ public class ThreeAccountBotServce{
             }
         }
         state.lastAccounts = info.account;
+    }
+
+    private static enum PerformAccount{
+        FirstAndSecond,
+        FirstAndThird,
+
+        SecondAndThird,
+        SecondAndFirst,
+
+        ThirdAndFirst,
+        ThirdAndSecond,
+        OnlyFirst,
+        OnlySecond,
+        OnlyThird,
     }
 }
