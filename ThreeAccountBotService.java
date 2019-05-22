@@ -51,7 +51,7 @@ public class ThreeAccountBotServce{
         state.lastAccounts = info.account;
     }
 
-    private static enum PerformAccount{
+    public static enum PerformAccount{
         FirstAndSecond,
         FirstAndThird,
 
