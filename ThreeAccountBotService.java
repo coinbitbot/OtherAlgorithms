@@ -51,6 +51,23 @@ public class ThreeAccountBotServce{
         state.lastAccounts = info.account;
     }
 
+    public void setDepth(){
+        if (info.isBuy) {
+            buyAmount-=info.amount;
+            sellAmount+=info.amount;
+
+            ((VolumeState) workingState).accountsDepth.set(getKey(info.account, true) - 1, buyAmount);
+            ((VolumeState) workingState).accountsDepth.set(getKey(info.account, false) - 1, sellAmount);
+        }else{
+            buyAmount-=info.amount;
+            sellAmount+=info.amount;
+
+
+            ((VolumeState) workingState).accountsDepth.set(getKey(info.account, true)-1, sellAmount);
+            ((VolumeState) workingState).accountsDepth.set(getKey(info.account, false)-1, buyAmount);
+        }
+    }
+
     public static enum PerformAccount{
         FirstAndSecond,
         FirstAndThird,
